@@ -47,7 +47,7 @@ class BridgeTiny(private val mWebView: IWebView) {
     private fun dispatchMessage(message: Any?) {
         var messageJson = gson.toJson(message)
         messageJson = JSONObject.quote(messageJson)
-        //escape special characters for json string  为json字符串转义特殊字符
+        // 为json字符串转义特殊字符
         messageJson = messageJson.replace("(\\\\)([^utrn])".toRegex(), "\\\\\\\\$1$2")
         messageJson = messageJson.replace("(?<=[^\\\\])(\")".toRegex(), "\\\\\"")
         messageJson = messageJson.replace("(?<=[^\\\\])(\')".toRegex(), "\\\\\'")
