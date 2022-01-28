@@ -6,6 +6,7 @@ import android.os.SystemClock
 import android.util.ArrayMap
 import com.google.gson.Gson
 import org.json.JSONObject
+import java.net.URLEncoder
 import java.util.*
 
 class BridgeTiny(private val mWebView: IWebView) {
@@ -45,7 +46,14 @@ class BridgeTiny(private val mWebView: IWebView) {
      */
     private fun dispatchMessage(message: Any?) {
         var messageJson = gson.toJson(message)
-        messageJson = JSONObject.quote(messageJson);
+        messageJson = JSONObject.quote(messageJson)
+        //escape special characters for json string  为json字符串转义特殊字符
+        messageJson = messageJson.replace("(\\\\)([^utrn])".toRegex(), "\\\\\\\\$1$2")
+        messageJson = messageJson.replace("(?<=[^\\\\])(\")".toRegex(), "\\\\\"")
+        messageJson = messageJson.replace("(?<=[^\\\\])(\')".toRegex(), "\\\\\'")
+        messageJson = messageJson.replace("%7B".toRegex(), URLEncoder.encode("%7B", "UTF-8"))
+        messageJson = messageJson.replace("%7D".toRegex(), URLEncoder.encode("%7D", "UTF-8"))
+        messageJson = messageJson.replace("%22".toRegex(), URLEncoder.encode("%22", "UTF-8"))
         val javascriptCommand = String.format(BridgeUtil.JS_HANDLE_MESSAGE_FROM_JAVA, messageJson)
         if (Thread.currentThread() === Looper.getMainLooper().thread) {
             if (javascriptCommand.length >= BridgeUtil.URL_MAX_CHARACTER_NUM) {
